@@ -18,11 +18,22 @@ import javax.swing.JFrame;
 public class MainFrame extends JFrame {
 
     //Window size
+
+    /**
+     *
+     */
     public static final int WINDOW_SIZE_X = 1200;
+
+    /**
+     *
+     */
     public static final int WINDOW_SIZE_Y = 800;
     private boolean isCtrlPressed = false;
     private boolean isShiftPressed = false;
 
+    /**
+     *
+     */
     public MainFrame() {
         setTitle("Graph Visualizer");
         setSize(WINDOW_SIZE_X, WINDOW_SIZE_Y);
@@ -30,8 +41,8 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         MainMenuBar menu = new MainMenuBar();
-        GraphPanel graphPanel = new GraphPanel(this);
         ConfigurationPanel confi = new ConfigurationPanel();
+        GraphPanel graphPanel = new GraphPanel(this, confi);
         
         this.setFocusable(true);
         this.requestFocus();
@@ -74,10 +85,18 @@ public class MainFrame extends JFrame {
         });
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isCtrlPressed() {
         return isCtrlPressed;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isShiftPressed() {
         return isShiftPressed;
     }

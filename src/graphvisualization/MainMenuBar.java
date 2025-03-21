@@ -36,6 +36,9 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
     private final JMenuItem spItem, minSTItem;
     private final JMenuItem docsItem, aboutItem;
 
+    /**
+     * constructor
+     */
     public MainMenuBar() {
         UIManager.put("Menu.font", new Font("Arial", Font.BOLD, 16));
         UIManager.put("MenuItem.font", new Font("Arial", Font.PLAIN, 20));
@@ -89,6 +92,9 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         return item;
     }
 
+    /**
+     * Get function
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         JMenuItem source = (JMenuItem) e.getSource();
@@ -116,7 +122,10 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         }
     }
 
-    public void openFile() {
+    /**
+     * open file
+     */
+    private void openFile() {
         File parentDirectory = new File("").getAbsoluteFile();
 
         JFileChooser fileChooser = new JFileChooser(parentDirectory);
@@ -124,6 +133,9 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
 
     }
 
+    /**
+     * save file
+     */
     private void saveFile() {
         try {
             LocalDateTime now = LocalDateTime.now();
@@ -141,9 +153,15 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         }
     }
 
+    /**
+     * reset all
+     */
     private void clearData() {
     }
 
+    /**
+     * instruction
+     */
     private void docsItem() {
         String userGuide = "User Guide\n\n"
                 + "I. Menu Functions\n"
@@ -177,6 +195,9 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         JOptionPane.showMessageDialog(null, scrollPane, "User Guide", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * author
+     */
     private void aboutMe() {
         String introduce = "CSD201 - SE1905 - Group 3\n"
                 + "Mentor: Le Thi Phuong Dung\n"

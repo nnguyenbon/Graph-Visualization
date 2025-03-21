@@ -18,19 +18,43 @@ public class Graph {
     private final int MAX_VERTEX = 100;
     private int[][] graph;
     private int numberOfVertices;
-    private int startTraversal, endTraversal, sum = 0;
+    private int sum = 0;
     private int[] isVisited = new int[MAX_VERTEX];
     private int[] distance = new int[MAX_VERTEX];
     private int[] parent = new int[MAX_VERTEX];
     private String result;
 
+    /**
+     *
+     */
     public Graph() {
+        this.numberOfVertices = numberOfVertices;
         this.graph = new int[MAX_VERTEX][MAX_VERTEX];
         for (int i = 0; i < MAX_VERTEX; i++) {
             for (int j = 0; j < MAX_VERTEX; j++) {
                 graph[i][j] = 0;
             }
         }
+    }
+    
+    /**
+     *
+     */
+    public void print() {
+        for (int i = 0; i < numberOfVertices; i++) {
+            for (int j = 0; j < numberOfVertices; j++) {
+                System.out.print(graph[i][j] + " ");
+            }
+            System.out.println("");
+        }
+    }
+
+    /**
+     *
+     * @param graph
+     */
+    public void setGraph(int[][] graph) {
+        this.graph = graph;
     }
 
     private void resetIsVisited() {

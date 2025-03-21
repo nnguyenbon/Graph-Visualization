@@ -25,14 +25,22 @@ public class ConfigurationPanel extends JPanel {
     private JPanel graphInformationPanel, instructionPanel;
     private JRadioButton matrixCheck, listCheck;
     private JTextArea resultTextField;
+    private boolean isMatrix = true, isList = false;
 
+    /**
+     * constructor
+     */
     public ConfigurationPanel() {
+        System.out.println("confiPanel");
         setPreferredSize(new Dimension(MainFrame.WINDOW_SIZE_X / 2 - 260, MainFrame.WINDOW_SIZE_Y));
         setBackground(null);
         add(createInstructionPanel(), BorderLayout.NORTH);
         add(createGraphInformationPanel(), BorderLayout.SOUTH);
     }
 
+    /**
+     * Bottom Left Panel - Matrix or List
+     */
     private JPanel createGraphInformationPanel() {
         graphInformationPanel = new JPanel();
         graphInformationPanel.setLayout(new BorderLayout());
@@ -44,7 +52,17 @@ public class ConfigurationPanel extends JPanel {
                 new Font("Arial", Font.BOLD, 16),
                 Color.BLACK));
         matrixCheck = createRadioButton("Matrix");
+        matrixCheck.setSelected(true);
         listCheck = createRadioButton("List");
+        
+//        matrixCheck.addActionListener(e -> {
+//            isMatrix = true;
+//            isList = false;
+//        }); 
+//        listCheck.addActionListener(e -> {
+//            isMatrix = false;
+//            isList = true;
+//        });
 
         ButtonGroup group = new ButtonGroup();
         group.add(matrixCheck);
@@ -67,6 +85,9 @@ public class ConfigurationPanel extends JPanel {
         return graphInformationPanel;
     }
 
+    /**
+     * Create radio button
+     */
     private JRadioButton createRadioButton(String name) {
         JRadioButton button = new JRadioButton(name);
 
@@ -75,6 +96,9 @@ public class ConfigurationPanel extends JPanel {
         return button;
     }
 
+    /**
+     * Create text field for matrix/list
+     */
     private JTextArea createResultTextField() {
         resultTextField = new JTextArea(20, 20);
         resultTextField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -83,14 +107,25 @@ public class ConfigurationPanel extends JPanel {
         return resultTextField;
     }
 
+    /**
+     * getter
+     * @return
+     */
     public JTextArea getResultTextField() {
         return resultTextField;
     }
 
+    /**
+     * setter
+     * @param resultTextField
+     */
     public void setResultTextField(JTextArea resultTextField) {
         this.resultTextField = resultTextField;
     }
 
+    /**
+     * Create top left panel
+     */
     private JPanel createInstructionPanel() {
         instructionPanel = new JPanel(new BorderLayout()); // Sử dụng BorderLayout để căn chỉnh dễ dàng
         instructionPanel.setPreferredSize(new Dimension(MainFrame.WINDOW_SIZE_X / 2 - 270,
@@ -116,5 +151,37 @@ public class ConfigurationPanel extends JPanel {
 
         instructionPanel.add(instructionText, BorderLayout.CENTER);
         return instructionPanel;
+    }
+
+    /**
+     * getter
+     * @return
+     */
+    public boolean isIsMatrix() {
+        return isMatrix;
+    }
+
+    /**
+     * setter
+     * @param isMatrix
+     */
+    public void setIsMatrix(boolean isMatrix) {
+        this.isMatrix = isMatrix;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isIsList() {
+        return isList;
+    }
+
+    /**
+     *
+     * @param isList
+     */
+    public void setIsList(boolean isList) {
+        this.isList = isList;
     }
 }
