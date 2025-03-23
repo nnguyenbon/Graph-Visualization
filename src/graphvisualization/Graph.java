@@ -5,6 +5,7 @@
  */
 package graphvisualization;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -23,6 +24,8 @@ public class Graph {
     private int[] distance = new int[MAX_VERTEX];
     private int[] parent = new int[MAX_VERTEX];
     private String result;
+    private int startV, endV;
+    private ArrayList<Integer> path;
 
     /**
      *
@@ -36,7 +39,7 @@ public class Graph {
             }
         }
     }
-    
+
     /**
      *
      */
@@ -75,7 +78,7 @@ public class Graph {
         }
     }
 
-    private void DFS(int start) {
+    public void DFS(int start) {
 //        resetIsVisited();
 //        resetParent();
         result = "";
@@ -98,7 +101,7 @@ public class Graph {
         }
     }
 
-    private void BFS(int start) {
+    public void BFS(int start) {
 //        resetIsVisited();
 //        resetParent();
         result = "";
@@ -127,10 +130,12 @@ public class Graph {
                 minIndex = i;
             }
         }
+        System.out.println("minIndex " + minIndex);
         return minIndex;
     }
 
-    private void prim() {
+    public void prim() {
+        path = new ArrayList<>();
         resetIsVisited();
         resetDistance();
         resetParent();
@@ -145,6 +150,7 @@ public class Graph {
             }
             isVisited[u] = 1;
             sum += distance[u];
+            path.add(u);
             for (int v = 0; v < numberOfVertices; v++) {
                 if (graph[u][v] > 0 && isVisited[v] == 0
                         && distance[v] > graph[u][v]) {
@@ -153,22 +159,22 @@ public class Graph {
                 }
             }
         }
-        for (int i = 1; i < numberOfVertices; i++) {
-            result += "\n" + i + " " + parent[i] + ":\t " + distance[i];
-        }
+        
+        result = String.valueOf(sum);
     }
 
-    private void spDijkstra(int start) {
-        resetIsVisited();
-        resetDistance();
-        resetParent();
+    public void spDijkstra(int start) {
+        System.out.println("start: " + start);
         result = "";
         int u;
         distance[start] = 0;
+        
         for (int i = 0; i < numberOfVertices; i++) {
+            System.out.println("i: " + i);
             u = findNearestint(); // 0
+            System.out.println("176: " + u);
             if (u == -1) {
-                result = "  No Path";
+                result = " No Path 178";
                 return;
             }
             isVisited[u] = 1;
@@ -183,13 +189,49 @@ public class Graph {
             }
         }
 
-        for (int i = 0; i < numberOfVertices; i++) {
-            result += i + "--" + distance[i] + "\n";
+        result = "";
+        backtrackDijkstra(startV, endV);
+    }
+
+    public void spDijkstra(int start, int end) {
+        path = new ArrayList<>();
+        startV = start;
+        endV = end;
+        System.out.println("start: " + startV + " end: " + endV);
+        spDijkstra(startV);
+    }
+
+    public void backtrackDijkstra(int start, int des) {
+        print();
+        int u = des;
+        Stack<Integer> s = new Stack<>();
+        s.add(u);
+        while (u != start) {
+            u = parent[u];
+            s.add(u);
+            System.out.println(u);
+        }
+        while (!s.empty()) {
+            int v = s.pop();
+            path.add(v);
+            result += "->" + (v); //index đỉnh là 0
+            System.out.println("re: " + result);
+        }
+
+        System.out.println("distance " + distance[des]);
+        if (distance[des] != 0) {
+            String r = "-" + distance[des] + ":" + result.substring(2);
+            result = r;
+        } else {
+            result = " No Path 227";
         }
     }
 
-    private void spDijkstra(int start, int end) {
-        spDijkstra(start);
-        result = distance[end] + "\n";
+    public String getResult() {
+        return result.substring(1);
+    }
+
+    public ArrayList<Integer> getPath() {
+        return path;
     }
 }

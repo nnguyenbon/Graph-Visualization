@@ -35,11 +35,13 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
     private final JMenuItem dfsItem, bfsItem;
     private final JMenuItem spItem, minSTItem;
     private final JMenuItem docsItem, aboutItem;
+    private GraphPanel gP;
 
     /**
      * constructor
      */
-    public MainMenuBar() {
+    public MainMenuBar(GraphPanel gP) {
+        this.gP = gP;
         UIManager.put("Menu.font", new Font("Arial", Font.BOLD, 16));
         UIManager.put("MenuItem.font", new Font("Arial", Font.PLAIN, 20));
 
@@ -65,7 +67,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
 
         // Algorithms Menu
         algorithmsMenu = new JMenu("Algorithms");
-        spItem = createMenuItem("Finds shortesr path", this);
+        spItem = createMenuItem("Finds shortest path", this);
         minSTItem = createMenuItem("Finds Minimum spanning tree", this);
 
         algorithmsMenu.add(spItem);
@@ -108,13 +110,13 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         } else if (source == exitItem) {
             System.exit(0);
         } else if (source == dfsItem) {
-            System.out.println("dfs");
+            gP.dfs();
         } else if (source == bfsItem) {
-            System.out.println("bfs");
+            gP.bfs();
         } else if (source == spItem) {
-            System.out.println("sp");
+            gP.sp();
         } else if (source == minSTItem) {
-            System.out.println("min");
+            gP.minimumst();
         } else if (source == docsItem) {
             docsItem();
         } else if (source == aboutItem) {

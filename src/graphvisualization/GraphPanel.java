@@ -14,6 +14,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +35,11 @@ public class GraphPanel extends JPanel {
     private int count = 0;
     private final int diameter = 30;
     private Point firstSelectedVertex = null;
-    private boolean isLine = false;
+    private boolean isLine = false, isHighLight = false;
     private int[][] matrix;
     private Graph graph;
     private ConfigurationPanel confi;
+    private StringBuilder sb;
 
     /**
      * constructor
@@ -78,6 +80,38 @@ public class GraphPanel extends JPanel {
                         }
                     }
                 }
+
+                if (isHighLight) {
+                    ArrayList<Integer> path = graph.getPath();
+                    for (Integer element : path) {
+                        for (Point p : edges.keySet()) {
+                            if (p.getNumber() == element) {
+                                highlightNode(g, p.getX(), p.getY(), p.getNumber());
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < path.size() - 1; i++) {
+                        Point start = null, end = null;
+
+                        // Tìm điểm tương ứng với path[i]
+                        for (Point p : edges.keySet()) {
+                            if (p.getNumber() == path.get(i)) {
+                                start = p;
+                            } else if (p.getNumber() == path.get(i + 1)) {
+                                end = p;
+                            }
+                        }
+
+                        // Nếu tìm được cả hai điểm, vẽ cạnh nối giữa chúng
+                        if (start != null && end != null) {
+                            Integer weight = edges.get(start).get(end); // Lấy trọng số nếu có
+                            if (weight != null) {
+                                highlightEdge(g, start, end, weight);
+                            }
+                        }
+                    }
+                }
             }
         };
         drawPanel.setBackground(Color.white);
@@ -106,13 +140,14 @@ public class GraphPanel extends JPanel {
         drawPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                resetFunction();
                 int x = e.getX();
                 int y = e.getY();
                 int panelWidth = drawPanel.getWidth();
                 int panelHeight = drawPanel.getHeight();
 
                 if (mainFrame.isCtrlPressed()) {
-                    if (x >= panelWidth - 30 || y >= panelHeight - 30 || x <= 30 || y <= 30) {
+                    if (x >= panelWidth - 30 || y >= panelHeight - 30 || x <= 30 || y <= 50) {
                         result.setText("Too close the border");
                         return;
                     }
@@ -125,12 +160,13 @@ public class GraphPanel extends JPanel {
                     if (getVertexAt(x, y) != null) {
                         selectVertex(x, y);
                     } else {
-                       
+
                     }
                 }
+                
 
 //                if (confi.isIsMatrix()) {
-//                    convertIntoMatrix();
+                    convertIntoMatrix();
 //                } else {
 //                    convertIntoList();
 //                }
@@ -188,26 +224,7 @@ public class GraphPanel extends JPanel {
     }
 
     /**
-     * draw Vertex
-     */
-    private void drawNode(Graphics g, int x, int y, int count) {
-        g.setColor(Color.WHITE);
-        g.fillOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
-
-        g.setColor(Color.BLACK);
-        g.drawOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
-
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 14));
-        String text = String.valueOf(count);
-        FontMetrics fm = g.getFontMetrics();
-        int textX = x - fm.stringWidth(text) / 2;
-        int textY = y + fm.getAscent() / 2;
-        g.drawString(text, textX, textY);
-    }
-
-    /**
-     * draw Edge
+     *
      */
     private void selectVertex(int x, int y) {
         Point selected = getVertexAt(x, y);
@@ -252,29 +269,90 @@ public class GraphPanel extends JPanel {
         isLine = true;
     }
 
-    private void drawEdge(Graphics g, Point p1, Point p2, int weight) {
-        int nodeRadius = diameter / 2;
-        g.setColor(Color.BLACK);
+    public void dfs() {
+        if (edges.isEmpty()) {
+            confi.getResultTextField().setText("Graph is empty");
+            return;
+        }
 
-        // Tính vector hướng từ p1 đến p2
-        double dx = p2.getX() - p1.getX();
-        double dy = p2.getY() - p1.getY();
-        double length = Math.sqrt(dx * dx + dy * dy);
+        int size = edges.size() - 1;
+        try {
+            String start = JOptionPane.showInputDialog("Enter start vertex", 0);
+            int startV = Integer.parseInt(start);
+            if (startV >= 0 && startV <= size) {
+                graph.DFS(startV);
+                result.setText("The DFS traversal from " + startV + " is: " + graph.getResult());
+            } else if (startV > size) {
+                JOptionPane.showMessageDialog(null, "Out of vertex number");
+            } else {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid input! Using default start vertex: 0");
+        }
+    }
 
-        // Tính toán điểm bắt đầu và kết thúc sao cho không đè lên node
-        int startX = (int) (p1.getX() + nodeRadius * dx / length);
-        int startY = (int) (p1.getY() + nodeRadius * dy / length);
-        int endX = (int) (p2.getX() - nodeRadius * dx / length);
-        int endY = (int) (p2.getY() - nodeRadius * dy / length);
+    public void bfs() {
+        if (edges.isEmpty()) {
+            confi.getResultTextField().setText("Graph is empty");
+            return;
+        }
 
-        // Vẽ cạnh
-        g.drawLine(startX, startY, endX, endY);
+        int size = edges.size() - 1;
+        try {
+            String start = JOptionPane.showInputDialog("Enter start vertex", 0);
+            int startV = Integer.parseInt(start);
+            if (startV >= 0 && startV <= size) {
+                graph.DFS(startV);
+                result.setText("The BFS traversal from " + startV + " is: " + graph.getResult());
+            } else if (startV > edges.size()) {
+                JOptionPane.showMessageDialog(null, "Out of vertex number");
+            } else {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid input! Using default start vertex: 0");
+        }
+    }
 
-        // Tính vị trí đặt trọng số, đẩy lên trên đường thẳng một chút
-        int midX = (startX + endX) / 2;
-        int midY = (startY + endY) / 2 - 5; // Dịch lên 5 pixel tránh bị đè
+    public void sp() {
+        if (edges.isEmpty()) {
+            confi.getResultTextField().setText("Graph is empty");
+            return;
+        }
 
-        g.drawString(String.valueOf(weight), midX, midY);
+        int size = edges.size() - 1;
+        try {
+            String start = JOptionPane.showInputDialog("Enter start vertex", 0);
+            String end = JOptionPane.showInputDialog("Enter start vertex", size);
+
+            int startV = Integer.parseInt(start);
+            int endV = Integer.parseInt(end);
+            if ((startV >= 0 && startV <= size) && (endV >= 0 && endV <= size && endV != startV)) {
+                graph.spDijkstra(startV, endV);
+                isHighLight = true;
+                drawPanel.repaint();
+                result.setText("The length of the shortest path from " + startV + " to " + endV + " is " + graph.getResult());
+            } else if (startV > size || endV > size) {
+                JOptionPane.showMessageDialog(null, "Out of vertex number");
+            } else {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid input! Using default start vertex: 0; end vertex: " + size);
+        }
+    }
+
+    public void minimumst() {
+        if (edges.isEmpty()) {
+            confi.getResultTextField().setText("Graph is empty");
+            return;
+        }
+
+        graph.prim();
+        isHighLight = true;
+        drawPanel.repaint();
+        result.setText("The minimum spanning tree is " + graph.getResult());
     }
 
     private boolean checkCollision(int x, int y) {
@@ -324,7 +402,7 @@ public class GraphPanel extends JPanel {
     public void convertIntoMatrix() {
         graph = new Graph();
         matrix = new int[edges.size()][edges.size()];
-        StringBuilder sb = new StringBuilder();
+        sb = new StringBuilder();
 
         sb.append(edges.size()).append("\n");
         for (Map.Entry<Point, Map<Point, Integer>> entry : edges.entrySet()) {
@@ -351,7 +429,7 @@ public class GraphPanel extends JPanel {
      */
     public void convertIntoList() {
         int n = edges.size();
-        StringBuilder sb = new StringBuilder();
+        sb = new StringBuilder();
 
         sb.append(n).append("\n");
         System.out.println(n);
@@ -366,4 +444,93 @@ public class GraphPanel extends JPanel {
 //        confi.getResultTextField().setText(sb.toString());
     }
 
+    /**
+     * draw Vertex
+     */
+    private void drawNode(Graphics g, int x, int y, int count) {
+        g.setColor(Color.WHITE);
+        g.fillOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
+
+        g.setColor(Color.BLACK);
+        g.drawOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 14));
+        String text = String.valueOf(count);
+        FontMetrics fm = g.getFontMetrics();
+        int textX = x - fm.stringWidth(text) / 2;
+        int textY = y + fm.getAscent() / 2;
+        g.drawString(text, textX, textY);
+    }
+
+    private void drawEdge(Graphics g, Point p1, Point p2, int weight) {
+        int nodeRadius = diameter / 2;
+        g.setColor(Color.BLACK);
+
+        // Tính vector hướng từ p1 đến p2
+        double dx = p2.getX() - p1.getX();
+        double dy = p2.getY() - p1.getY();
+        double length = Math.sqrt(dx * dx + dy * dy);
+
+        // Tính toán điểm bắt đầu và kết thúc sao cho không đè lên node
+        int startX = (int) (p1.getX() + nodeRadius * dx / length);
+        int startY = (int) (p1.getY() + nodeRadius * dy / length);
+        int endX = (int) (p2.getX() - nodeRadius * dx / length);
+        int endY = (int) (p2.getY() - nodeRadius * dy / length);
+
+        // Vẽ cạnh
+        g.drawLine(startX, startY, endX, endY);
+
+        // Tính vị trí đặt trọng số, đẩy lên trên đường thẳng một chút
+        int midX = (startX + endX) / 2;
+        int midY = (startY + endY) / 2 - 5; // Dịch lên 5 pixel tránh bị đè
+
+        g.drawString(String.valueOf(weight), midX, midY);
+    }
+
+    private void highlightNode(Graphics g, int x, int y, int count) {
+        g.setColor(Color.RED);
+        g.fillOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
+
+        g.setColor(Color.YELLOW);
+        g.drawOval(x - diameter / 2, y - diameter / 2, diameter, diameter);
+
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Arial", Font.BOLD, 14));
+        String text = String.valueOf(count);
+        FontMetrics fm = g.getFontMetrics();
+        int textX = x - fm.stringWidth(text) / 2;
+        int textY = y + fm.getAscent() / 2;
+        g.drawString(text, textX, textY);
+    }
+
+    private void highlightEdge(Graphics g, Point p1, Point p2, int weight) {
+        int nodeRadius = diameter / 2;
+        g.setColor(Color.RED);
+
+        // Tính vector hướng từ p1 đến p2
+        double dx = p2.getX() - p1.getX();
+        double dy = p2.getY() - p1.getY();
+        double length = Math.sqrt(dx * dx + dy * dy);
+
+        // Tính toán điểm bắt đầu và kết thúc sao cho không đè lên node
+        int startX = (int) (p1.getX() + nodeRadius * dx / length);
+        int startY = (int) (p1.getY() + nodeRadius * dy / length);
+        int endX = (int) (p2.getX() - nodeRadius * dx / length);
+        int endY = (int) (p2.getY() - nodeRadius * dy / length);
+
+        // Vẽ cạnh
+        g.drawLine(startX, startY, endX, endY);
+
+        // Tính vị trí đặt trọng số, đẩy lên trên đường thẳng một chút
+        int midX = (startX + endX) / 2;
+        int midY = (startY + endY) / 2 - 5; // Dịch lên 5 pixel tránh bị đè
+
+        g.drawString(String.valueOf(weight), midX, midY);
+    }
+
+    private void resetFunction() {
+        result.setText("");
+        isHighLight = false;
+    }
 }

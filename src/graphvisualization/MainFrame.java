@@ -40,9 +40,9 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        MainMenuBar menu = new MainMenuBar();
         ConfigurationPanel confi = new ConfigurationPanel();
         GraphPanel graphPanel = new GraphPanel(this, confi);
+        MainMenuBar menu = new MainMenuBar(graphPanel);
         
         this.setFocusable(true);
         this.requestFocus();
