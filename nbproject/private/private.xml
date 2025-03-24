@@ -2,6 +2,12 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/FPT/Curriculum/SP25/CSD/assignment/GraphVisualization/src/graphvisualization/MainFrame.java</file>
+            <file>file:/D:/FPT/Curriculum/SP25/CSD/assignment/GraphVisualization/src/graphvisualization/MainMenuBar.java</file>
+            <file>file:/D:/FPT/Curriculum/SP25/CSD/assignment/GraphVisualization/src/graphvisualization/ConfigurationPanel.java</file>
+            <file>file:/D:/FPT/Curriculum/SP25/CSD/assignment/GraphVisualization/src/graphvisualization/Graph.java</file>
+            <file>file:/D:/FPT/Curriculum/SP25/CSD/assignment/GraphVisualization/src/graphvisualization/GraphPanel.java</file>
+        </group>
     </open-files>
 </project-private>

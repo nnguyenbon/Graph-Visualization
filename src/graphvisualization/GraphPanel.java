@@ -11,6 +11,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -21,6 +23,7 @@ import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 /**
  *
@@ -58,6 +61,20 @@ public class GraphPanel extends JPanel {
         label.setFont(new Font("Arial", Font.BOLD, 20));
         add(label, BorderLayout.NORTH);
         add(displayPanel(), BorderLayout.CENTER);
+
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!edges.isEmpty()) {
+                    convertIntoMatrix();
+                    if (!confi.isIsMatrix()) {
+                        convertIntoList();
+                    }
+                }
+            }
+        });
+
+        timer.start();
     }
 
     /**
@@ -73,9 +90,9 @@ public class GraphPanel extends JPanel {
                     drawNode(g, p.getX(), p.getY(), p.getNumber());
                 }
 
-                if (isLine) {
-                    for (Map.Entry<Point, Map<Point, Integer>> entry : edges.entrySet()) {
-                        for (Map.Entry<Point, Integer> edge : entry.getValue().entrySet()) {
+                for (Map.Entry<Point, Map<Point, Integer>> entry : edges.entrySet()) {
+                    for (Map.Entry<Point, Integer> edge : entry.getValue().entrySet()) {
+                        if (edge.getValue() > 0) {
                             drawEdge(g, entry.getKey(), edge.getKey(), edge.getValue());
                         }
                     }
@@ -140,13 +157,17 @@ public class GraphPanel extends JPanel {
         drawPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+
                 resetFunction();
                 int x = e.getX();
                 int y = e.getY();
                 int panelWidth = drawPanel.getWidth();
                 int panelHeight = drawPanel.getHeight();
 
+                System.out.println("x " + x + " - y " + y);
+
                 if (mainFrame.isCtrlPressed()) {
+                    System.out.println("ctrl");
                     if (x >= panelWidth - 30 || y >= panelHeight - 30 || x <= 30 || y <= 50) {
                         result.setText("Too close the border");
                         return;
@@ -155,6 +176,7 @@ public class GraphPanel extends JPanel {
                     addPoint(x, y);
                     drawPanel.repaint();
                 } else if (mainFrame.isShiftPressed()) {
+                    System.out.println("shift");
                     removePoint(x, y);
                 } else {
                     if (getVertexAt(x, y) != null) {
@@ -163,13 +185,6 @@ public class GraphPanel extends JPanel {
 
                     }
                 }
-                
-
-//                if (confi.isIsMatrix()) {
-                    convertIntoMatrix();
-//                } else {
-//                    convertIntoList();
-//                }
             }
 
             @Override
@@ -257,16 +272,16 @@ public class GraphPanel extends JPanel {
             int parsedWeight = Integer.parseInt(input);
             if (parsedWeight >= 1) {
                 weight = parsedWeight;
-            } else {
-                JOptionPane.showMessageDialog(null, "Weight must be at least 1. Using default weight: 1");
+
+                edges.get(p1).put(p2, weight);
+                edges.get(p2).put(p1, weight);
+            } else if (parsedWeight == 0) {
+                edges.get(p1).remove(p2);
+                edges.get(p2).remove(p1);
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid input! Using default weight: 1");
+            JOptionPane.showMessageDialog(null, "Invalid input!");
         }
-
-        edges.get(p1).put(p2, weight);
-        edges.get(p2).put(p1, weight);
-        isLine = true;
     }
 
     public void dfs() {
@@ -352,6 +367,7 @@ public class GraphPanel extends JPanel {
         graph.prim();
         isHighLight = true;
         drawPanel.repaint();
+        System.out.println(graph.getResult());
         result.setText("The minimum spanning tree is " + graph.getResult());
     }
 
@@ -401,10 +417,12 @@ public class GraphPanel extends JPanel {
      */
     public void convertIntoMatrix() {
         graph = new Graph();
+        graph.setNumberOfVertices(edges.size());
         matrix = new int[edges.size()][edges.size()];
         sb = new StringBuilder();
 
         sb.append(edges.size()).append("\n");
+
         for (Map.Entry<Point, Map<Point, Integer>> entry : edges.entrySet()) {
             for (Map.Entry<Point, Integer> edge : entry.getValue().entrySet()) {
                 matrix[entry.getKey().getNumber()][edge.getKey().getNumber()] = edge.getValue();
@@ -418,10 +436,7 @@ public class GraphPanel extends JPanel {
             sb.append("\n");
         }
         graph.setGraph(Arrays.copyOf(matrix, edges.size()));
-
-        System.out.println("matrix");
-        System.out.println(sb.toString().trim());
-//        confi.getResultTextField().setText(sb.toString());
+        confi.getResultTextField().setText(sb.toString().trim());
     }
 
     /**
@@ -432,16 +447,16 @@ public class GraphPanel extends JPanel {
         sb = new StringBuilder();
 
         sb.append(n).append("\n");
-        System.out.println(n);
+
+        ArrayList<Map.Entry<Point, Map<Point, Integer>>> sortedEntries = new ArrayList<>(edges.entrySet());
+        sortedEntries.sort((a, b) -> Integer.compare(b.getKey().getNumber(), a.getKey().getNumber()));
+
         for (Map.Entry<Point, Map<Point, Integer>> entry : edges.entrySet()) {
             for (Map.Entry<Point, Integer> edge : entry.getValue().entrySet()) {
                 sb.append(entry.getKey().getNumber()).append(" ").append(edge.getKey().getNumber()).append(" ").append(edge.getValue()).append("\n");
             }
         }
-
-        System.out.println("list");
-        System.out.println(sb.toString().trim());
-//        confi.getResultTextField().setText(sb.toString());
+        confi.getResultTextField().setText(sb.toString());
     }
 
     /**
@@ -532,5 +547,28 @@ public class GraphPanel extends JPanel {
     private void resetFunction() {
         result.setText("");
         isHighLight = false;
+    }
+
+    public void clearAll() {
+        edges.clear();
+        count = 0;
+        firstSelectedVertex = null;
+        isLine = false;
+        resetFunction();
+        graph = new Graph();
+        confi.getResultTextField().setText("");
+        drawPanel.repaint();
+    }
+
+    public JLabel getResult() {
+        return result;
+    }
+
+    public StringBuilder getSb() {
+        return sb;
+    }
+
+    public Map<Point, Map<Point, Integer>> getEdges() {
+        return edges;
     }
 }

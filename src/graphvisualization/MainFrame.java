@@ -18,7 +18,6 @@ import javax.swing.JFrame;
 public class MainFrame extends JFrame {
 
     //Window size
-
     /**
      *
      */
@@ -40,12 +39,12 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        ConfigurationPanel confi = new ConfigurationPanel();
+        ConfigurationPanel confi = new ConfigurationPanel(this);
         GraphPanel graphPanel = new GraphPanel(this, confi);
-        MainMenuBar menu = new MainMenuBar(graphPanel);
-        
+        MainMenuBar menu = new MainMenuBar(graphPanel, confi);
+
         this.setFocusable(true);
-        this.requestFocus();
+        this.requestFocusInWindow();
 
         this.setupKeyListener();
         setJMenuBar(menu);

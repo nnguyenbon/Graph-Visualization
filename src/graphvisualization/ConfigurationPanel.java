@@ -25,12 +25,14 @@ public class ConfigurationPanel extends JPanel {
     private JPanel graphInformationPanel, instructionPanel;
     private JRadioButton matrixCheck, listCheck;
     private JTextArea resultTextField;
-    private boolean isMatrix = true, isList = false;
+    private boolean isMatrix = true;
+    private MainFrame mainFrame;
 
     /**
      * constructor
      */
-    public ConfigurationPanel() {
+    public ConfigurationPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         System.out.println("confiPanel");
         setPreferredSize(new Dimension(MainFrame.WINDOW_SIZE_X / 2 - 260, MainFrame.WINDOW_SIZE_Y));
         setBackground(null);
@@ -54,15 +56,17 @@ public class ConfigurationPanel extends JPanel {
         matrixCheck = createRadioButton("Matrix");
         matrixCheck.setSelected(true);
         listCheck = createRadioButton("List");
-        
-//        matrixCheck.addActionListener(e -> {
-//            isMatrix = true;
-//            isList = false;
-//        }); 
-//        listCheck.addActionListener(e -> {
-//            isMatrix = false;
-//            isList = true;
-//        });
+        matrixCheck.setFocusable(false);
+        listCheck.setFocusable(false);
+
+        matrixCheck.addActionListener(e -> {
+            isMatrix = true;
+            mainFrame.requestFocusInWindow();
+        });
+        listCheck.addActionListener(e -> {
+            isMatrix = false;
+            mainFrame.requestFocusInWindow();
+        });
 
         ButtonGroup group = new ButtonGroup();
         group.add(matrixCheck);
@@ -109,6 +113,7 @@ public class ConfigurationPanel extends JPanel {
 
     /**
      * getter
+     *
      * @return
      */
     public JTextArea getResultTextField() {
@@ -117,6 +122,7 @@ public class ConfigurationPanel extends JPanel {
 
     /**
      * setter
+     *
      * @param resultTextField
      */
     public void setResultTextField(JTextArea resultTextField) {
@@ -140,7 +146,7 @@ public class ConfigurationPanel extends JPanel {
                 + "#1 Select start vertex (click it again to unselect).\n"
                 + "#2 Select destination vertex.\n"
                 + "#3 Input edge's value.\n"
-                + "#4 Click on value of the exist edge to update."
+                + "#4 Click on two point again to update edge."
         );
         instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
         instructionText.setBackground(null);
@@ -155,6 +161,7 @@ public class ConfigurationPanel extends JPanel {
 
     /**
      * getter
+     *
      * @return
      */
     public boolean isIsMatrix() {
@@ -163,25 +170,10 @@ public class ConfigurationPanel extends JPanel {
 
     /**
      * setter
+     *
      * @param isMatrix
      */
     public void setIsMatrix(boolean isMatrix) {
         this.isMatrix = isMatrix;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public boolean isIsList() {
-        return isList;
-    }
-
-    /**
-     *
-     * @param isList
-     */
-    public void setIsList(boolean isList) {
-        this.isList = isList;
     }
 }

@@ -31,13 +31,15 @@ public class Graph {
      *
      */
     public Graph() {
-        this.numberOfVertices = numberOfVertices;
         this.graph = new int[MAX_VERTEX][MAX_VERTEX];
         for (int i = 0; i < MAX_VERTEX; i++) {
             for (int j = 0; j < MAX_VERTEX; j++) {
                 graph[i][j] = 0;
             }
         }
+        resetDistance();
+        resetIsVisited();
+        resetParent();
     }
 
     /**
@@ -79,8 +81,8 @@ public class Graph {
     }
 
     public void DFS(int start) {
-//        resetIsVisited();
-//        resetParent();
+        resetIsVisited();
+        resetParent();
         result = "";
         Stack<Integer> s = new Stack<>();
         s.add(start);
@@ -102,8 +104,8 @@ public class Graph {
     }
 
     public void BFS(int start) {
-//        resetIsVisited();
-//        resetParent();
+        resetIsVisited();
+        resetParent();
         result = "";
         Queue<Integer> q = new LinkedList<>();
         q.add(start);
@@ -159,26 +161,29 @@ public class Graph {
                 }
             }
         }
-        
-        result = String.valueOf(sum);
+
+        System.out.println("sum " + sum);
+        result = " " + String.valueOf(sum);
     }
 
     public void spDijkstra(int start) {
+        resetIsVisited();
+        resetDistance();
+        resetParent();
         System.out.println("start: " + start);
         result = "";
         int u;
         distance[start] = 0;
-        
+
         for (int i = 0; i < numberOfVertices; i++) {
             System.out.println("i: " + i);
             u = findNearestint(); // 0
             System.out.println("176: " + u);
             if (u == -1) {
-                result = " No Path 178";
+                result = " No Path";
                 return;
             }
             isVisited[u] = 1;
-            System.out.print(u + " - distance: " + distance[u] + "\n");
             for (int v = 0; v < numberOfVertices; v++) {
                 if (graph[u][v] > 0 && isVisited[v] == 0
                         && distance[v] > distance[u] + graph[u][v]) {
@@ -223,7 +228,7 @@ public class Graph {
             String r = "-" + distance[des] + ":" + result.substring(2);
             result = r;
         } else {
-            result = " No Path 227";
+            result = " No Path";
         }
     }
 
@@ -233,5 +238,9 @@ public class Graph {
 
     public ArrayList<Integer> getPath() {
         return path;
+    }
+
+    public void setNumberOfVertices(int numberOfVertices) {
+        this.numberOfVertices = numberOfVertices;
     }
 }

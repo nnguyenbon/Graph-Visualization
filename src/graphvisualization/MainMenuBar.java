@@ -14,6 +14,10 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -31,16 +35,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MainMenuBar extends JMenuBar implements ActionListener {
 
     private final JMenu fileMenu, graphMenu, algorithmsMenu, helpMenu;
-    private final JMenuItem saveItem, openItem, clearItem, exitItem;
+    private final JMenuItem saveItem, openItem, clearItem, exitItem, exportItem;
     private final JMenuItem dfsItem, bfsItem;
     private final JMenuItem spItem, minSTItem;
     private final JMenuItem docsItem, aboutItem;
     private GraphPanel gP;
+    private ConfigurationPanel confi;
 
     /**
      * constructor
      */
-    public MainMenuBar(GraphPanel gP) {
+    public MainMenuBar(GraphPanel gP, ConfigurationPanel confi) {
         this.gP = gP;
         UIManager.put("Menu.font", new Font("Arial", Font.BOLD, 16));
         UIManager.put("MenuItem.font", new Font("Arial", Font.PLAIN, 20));
@@ -48,12 +53,14 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         // File Menu
         fileMenu = new JMenu("File");
         saveItem = createMenuItem("Save", this);
+        exportItem = createMenuItem("Export Image", this);
         openItem = createMenuItem("Open", this);
         clearItem = createMenuItem("Clear", this);
         exitItem = createMenuItem("Exit", this);
 
         fileMenu.add(openItem);
         fileMenu.add(saveItem);
+        fileMenu.add(exportItem);
         fileMenu.add(clearItem);
         fileMenu.add(exitItem);
 
@@ -105,6 +112,8 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
             openFile();
         } else if (source == saveItem) {
             saveFile();
+        } else if (source == exportItem) {
+
         } else if (source == clearItem) {
             clearData();
         } else if (source == exitItem) {
@@ -128,11 +137,103 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
      * open file
      */
     private void openFile() {
+        String[] options = {"Matrix", "List"};
+        String choice = (String) JOptionPane.showInputDialog(
+                null,
+                "Choose an option:",
+                "Selection",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+        
+        if(choice == null || choice.isEmpty()) {
+            return;
+        }
+
         File parentDirectory = new File("").getAbsoluteFile();
 
         JFileChooser fileChooser = new JFileChooser(parentDirectory);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files (*.txt)", "txt"));
 
+        int response = fileChooser.showOpenDialog(null);
+
+        if (response == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            if (!file.getName().toLowerCase().endsWith(".txt")) {
+                gP.getResult().setText("Only .txt files are allowed!");
+                return;
+            }
+
+            clearData();
+            System.out.println("Opened file: " + file.getAbsolutePath());
+
+            try (Scanner sc = new Scanner(file)) {
+                if (choice.equals("Matrix")) {
+                    Map<Point, Map<Point, Integer>> graphMap = gP.getEdges();
+                    int n = sc.nextInt();
+
+                    ArrayList<Point> points = new ArrayList<>();  // Danh sách chứa tất cả các điểm đã tạo
+
+                    int alphaX = 150;
+                    int alphaY = 150;
+
+                    for (int i = 0; i < n; i++) {
+                        for (int j = 0; j < n; j++) {  // Chỉ xét j > i để tránh trùng lặp
+                            int weight = sc.nextInt();
+                            if (i == j) {
+                                continue;
+                            }
+
+                            // Tìm xem `i` hoặc `j` đã tồn tại chưa
+                            Point u = null, v = null;
+
+                            for (Point p : points) {
+                                if (p.getNumber() == i) {
+                                    u = p;
+                                }
+                                if (p.getNumber() == j) {
+                                    v = p;
+                                }
+                            }
+
+                            // Nếu chưa có `Point` nào chứa `i`, tạo mới
+                            if (u == null) {
+                                u = new Point(i + alphaX, j + alphaY, i);
+                                points.add(u);
+                                graphMap.putIfAbsent(u, new HashMap<>());
+                            }
+
+                            // Nếu chưa có `Point` nào chứa `j`, tạo mới
+                            if (v == null) {
+                                alphaX += 100;
+                                v = new Point(i + alphaX, j + alphaY, j);
+                                points.add(v);
+                                graphMap.putIfAbsent(v, new HashMap<>());
+                                alphaX -= 100;
+                            }
+
+                            // Nếu weight > 0, thêm cạnh vào graphMap
+                            if (weight > 0) {
+                                graphMap.get(u).put(v, weight);
+                                graphMap.get(v).put(u, weight); // Đảm bảo đồ thị vô hướng
+                            } 
+                            alphaY += 100;
+                        }
+                    }
+                } else if (choice.equals("List")) {
+                    Map<Point, Map<Point, Integer>> graphMap = gP.getEdges();
+                    JOptionPane.showMessageDialog(null, "Function under development");
+                } else {
+                    return;
+                }
+
+            } catch (Exception e) {
+                gP.getResult().setText("Error reading file - " + e.getMessage());
+            }
+        }
     }
 
     /**
@@ -144,11 +245,24 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
             String formattedDate = now.format(formatter);
             StringBuilder sb = new StringBuilder();
-            sb.append("graph_").append(formattedDate).append(".txt");
+
+            String[] options = {"Matrix", "List"};
+            String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Choose an option:",
+                    "Selection",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+            sb.append("graph_").append(choice).append(formattedDate).append(".txt");
 
             File file = new File(sb.toString());
 
             try (FileWriter out = new FileWriter(file)) {
+                String r = gP.getSb().toString();
+                out.write(r);
             }
         } catch (IOException e) {
         } catch (Exception e) {
@@ -159,6 +273,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
      * reset all
      */
     private void clearData() {
+        gP.clearAll();
     }
 
     /**
